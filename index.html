@@ -4,104 +4,270 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kumon Student Progress Tracker</title>
+    
     <style>
         :root {
             --kumon-blue: #00a0e9;
-            --kumon-dark: #0077b6;
-            --bg: #eef7fc;
-            --card: #ffffff;
-            --border: #cbd5e1;
-            --text: #1e293b;
-            --muted: #64748b;
+            --kumon-dark-blue: #0077b6;
+            --kumon-bg: #eef7fc;
+            --card-bg: #ffffff;
+            --border-color: #cbd5e1;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
             --success: #10b981;
-            --danger: #ef4444;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; }
-        body { background: var(--bg); color: var(--text); padding: 20px; display: flex; justify-content: center; min-height: 100vh; }
-        .container { width: 100%; max-width: 980px; display: flex; flex-direction: column; gap: 20px; }
-        header { text-align: center; background: var(--card); padding: 20px; border-radius: 14px; border: 2px solid var(--kumon-blue); }
-        h1 { color: var(--kumon-blue); font-size: 2.5rem; }
-        .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
-        
-        h2 { color: var(--kumon-dark); font-size: 1.2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; }
-        .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
-        
-        .btn { padding: 8px 14px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; font-size: 0.85rem; color: white; }
-        .btn-blue { background: var(--kumon-blue); }
-        .btn-dark { background: var(--kumon-dark); }
-        .btn-green { background: var(--success); }
-        .btn-red { background: var(--danger); }
-        .btn:hover { opacity: 0.9; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+        }
 
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-bottom: 15px; }
-        .form-group { display: flex; flex-direction: column; gap: 5px; }
-        .form-group label { font-size: 0.85rem; font-weight: bold; color: var(--kumon-dark); }
-        input, select { padding: 9px; border-radius: 8px; border: 1px solid var(--border); background: #f8fafc; font-size: 0.95rem; }
+        body {
+            background-color: var(--kumon-bg);
+            background-image: radial-gradient(var(--kumon-blue) 0.5px, transparent 0.5px);
+            background-size: 24px 24px;
+            color: var(--text-main);
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
 
-        .schedule-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
-        .day-box { background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 12px; }
-        .day-title { font-weight: bold; color: var(--kumon-blue); border-bottom: 2px solid var(--kumon-blue); padding-bottom: 4px; margin-bottom: 10px; }
-        
-        .paper-item { background: white; border: 1px solid var(--border); padding: 10px; border-radius: 6px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
-        .paper-item.done { background: #f0fdf4; border-color: var(--success); }
-        .checkbox-btn { width: 20px; height: 20px; accent-color: var(--kumon-blue); cursor: pointer; }
+        .container {
+            width: 100%;
+            max-width: 980px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 5px; }
-        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; }
-        th { color: var(--muted); text-transform: uppercase; font-size: 0.8rem; }
+        header {
+            text-align: center;
+            background: var(--card-bg);
+            padding: 25px 20px;
+            border-radius: 16px;
+            border: 2px solid var(--kumon-blue);
+            box-shadow: 0 4px 15px rgba(0, 160, 233, 0.15);
+        }
 
-        .history-item { background: #f8fafc; border-left: 4px solid var(--kumon-blue); border-radius: 6px; padding: 12px; margin-bottom: 10px; }
+        .kumon-header-logo {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .kumon-logo-text {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--kumon-blue);
+            letter-spacing: -1px;
+            line-height: 1;
+        }
+
+        .kumon-oface {
+            width: 46px;
+            height: 46px;
+            background-color: var(--kumon-blue);
+            border-radius: 50%;
+            position: relative;
+            display: inline-block;
+        }
+
+        .kumon-oface::before {
+            content: '';
+            position: absolute;
+            top: 14px;
+            left: 12px;
+            width: 7px;
+            height: 10px;
+            background-color: white;
+            border-radius: 50%;
+        }
+
+        .kumon-oface::after {
+            content: '';
+            position: absolute;
+            top: 14px;
+            right: 12px;
+            width: 7px;
+            height: 10px;
+            background-color: white;
+            border-radius: 50%;
+        }
+
+        .kumon-mouth {
+            position: absolute;
+            bottom: 10px;
+            left: 14px;
+            width: 18px;
+            height: 8px;
+            border-bottom: 3px solid white;
+            border-radius: 0 0 10px 10px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        h2 {
+            font-size: 1.25rem;
+            margin-bottom: 15px;
+            color: var(--kumon-dark-blue);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        input, select, button {
+            padding: 11px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background-color: #f8fafc;
+            color: var(--text-main);
+            font-size: 0.95rem;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--kumon-blue);
+            background-color: #ffffff;
+        }
+
+        button.btn-primary {
+            background-color: var(--kumon-blue);
+            color: #ffffff;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            transition: background 0.2s;
+        }
+
+        button.btn-primary:hover {
+            background-color: var(--kumon-dark-blue);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 5px;
+        }
+
+        th, td {
+            padding: 12px 10px;
+            text-align: left;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        th {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+        }
+
+        .schedule-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 15px;
+        }
+
+        .day-box {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 14px;
+        }
+
+        .day-title {
+            font-weight: 700;
+            color: var(--kumon-blue);
+            border-bottom: 2px solid var(--kumon-blue);
+            padding-bottom: 6px;
+            margin-bottom: 12px;
+            font-size: 1rem;
+        }
+
+        .paper-item {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+
+        .paper-item.done {
+            border-color: var(--success);
+            background-color: #f0fdf4;
+            opacity: 0.9;
+        }
+
+        .checkbox-btn {
+            cursor: pointer;
+            width: 22px;
+            height: 22px;
+            accent-color: var(--kumon-blue);
+        }
+
+        .delete-btn {
+            color: #ef4444;
+            cursor: pointer;
+            font-weight: bold;
+            background: none;
+            border: none;
+            padding: 0 5px;
+            font-size: 1.1rem;
+        }
     </style>
 </head>
 <body>
 
     <div class="container">
+        
         <header>
-            <h1>kumon</h1>
-            <p style="color: var(--muted);">Weekly Study Plan & Progress Tracker</p>
+            <div class="kumon-header-logo">
+                <span class="kumon-logo-text">kum</span>
+                <span class="kumon-oface">
+                    <span class="kumon-mouth"></span>
+                </span>
+                <span class="kumon-logo-text">n</span>
+            </div>
+            <p style="color: var(--text-muted); margin-top: 8px; font-weight: 600;">
+                Weekly Study Plan & Booklet Tracker
+            </p>
         </header>
 
         <div class="card">
-            <h2>
-                <span>Add Booklet for This Week</span>
-                <div class="btn-group">
-                    <button type="button" class="btn btn-dark" onclick="exportData()">📥 Export Data</button>
-                    <button type="button" class="btn btn-dark" onclick="document.getElementById('fileInput').click()">📤 Import Data</button>
-                    <input type="file" id="fileInput" style="display:none" onchange="importData(event)" accept=".json">
-                    <button type="button" class="btn btn-red" onclick="resetAll()">⚠️ Reset All Data</button>
-                </div>
-            </h2>
+            <h2>Add Booklet for This Week</h2>
             <form id="paperForm">
                 <div class="form-grid">
-                    <div class="form-group">
-                        <label>Booklet #</label>
-                        <input type="text" id="bNo" placeholder="e.g. 3A 11" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Total Pages</label>
-                        <input type="number" id="bPages" placeholder="10" required min="1" value="10">
-                    </div>
-                    <div class="form-group">
-                        <label>Target Mins</label>
-                        <input type="number" id="bTarget" placeholder="15" required min="1" value="15">
-                    </div>
-                    <div class="form-group">
-                        <label>Actual Mins</label>
-                        <input type="number" id="bActual" placeholder="15" required min="1" value="15">
-                    </div>
-                    <div class="form-group">
-                        <label>Corrections</label>
-                        <input type="number" id="bCorr" placeholder="0" min="0" value="0">
-                    </div>
-                    <div class="form-group">
-                        <label>Assigned Day</label>
-                        <select id="bDay">
-                            <option>Monday</option><option>Tuesday</option><option>Wednesday</option>
-                            <option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option>
-                        </select>
-                    </div>
+                    <input type="text" id="bookletNo" placeholder="Booklet # (e.g. 3A 11)" required>
+                    <input type="number" id="pageCount" placeholder="Pages (e.g. 10)" required min="1">
+                    <input type="number" id="targetTime" placeholder="Target Time (mins)" required min="1">
+                    <input type="number" id="actualTime" placeholder="Actual Time (mins)" required min="1">
+                    <input type="number" id="corrections" placeholder="Corrections (0)" min="0" value="0">
+                    <select id="assignedDay">
+                        <option value="Monday">Monday</option>
+                        <option value="Tuesday">Tuesday</option>
+                        <option value="Wednesday">Wednesday</option>
+                        <option value="Thursday">Thursday</option>
+                        <option value="Friday">Friday</option>
+                        <option value="Saturday">Saturday</option>
+                        <option value="Sunday">Sunday</option>
+                    </select>
                 </div>
-                <button type="submit" class="btn btn-blue" style="width: 100%; padding: 12px;">+ Add Booklet to Schedule</button>
-            </form>
-        </div>
+                <button type="submit" class="btn-primary" style="width: 100%;">+ Add Booklet to Schedule</button>
