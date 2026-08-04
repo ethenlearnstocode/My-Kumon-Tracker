@@ -37,7 +37,7 @@
 
         .container {
             width: 100%;
-            max-width: 980px;
+            max-width: 950px;
             display: flex;
             flex-direction: column;
             gap: 20px;
@@ -120,11 +120,16 @@
             font-size: 1.25rem;
             margin-bottom: 15px;
             color: var(--kumon-dark-blue);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .form-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
             gap: 10px;
             margin-bottom: 15px;
         }
@@ -155,6 +160,21 @@
 
         button.btn-primary:hover {
             background-color: var(--kumon-dark-blue);
+        }
+
+        button.btn-archive {
+            background-color: var(--success);
+            color: #ffffff;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            padding: 8px 14px;
+            font-size: 0.85rem;
+            border-radius: 6px;
+        }
+
+        button.btn-archive:hover {
+            background-color: #059669;
         }
 
         table {
@@ -213,7 +233,8 @@
         .paper-item.done {
             border-color: var(--success);
             background-color: #f0fdf4;
-            opacity: 0.9;
+            opacity: 0.75;
+            text-decoration: line-through;
         }
 
         .checkbox-btn {
@@ -231,6 +252,14 @@
             border: none;
             padding: 0 5px;
             font-size: 1.1rem;
+        }
+
+        .history-item {
+            background: #f8fafc;
+            border-left: 4px solid var(--kumon-blue);
+            border-radius: 6px;
+            padding: 12px 15px;
+            margin-bottom: 10px;
         }
     </style>
 </head>
@@ -257,9 +286,7 @@
                 <div class="form-grid">
                     <input type="text" id="bookletNo" placeholder="Booklet # (e.g. 3A 11)" required>
                     <input type="number" id="pageCount" placeholder="Pages (e.g. 10)" required min="1">
-                    <input type="number" id="targetTime" placeholder="Target Time (mins)" required min="1">
-                    <input type="number" id="actualTime" placeholder="Actual Time (mins)" required min="1">
-                    <input type="number" id="corrections" placeholder="Corrections (0)" min="0" value="0">
+                    <input type="number" id="timeTaken" placeholder="Time (mins)" required min="1">
                     <select id="assignedDay">
                         <option value="Monday">Monday</option>
                         <option value="Tuesday">Tuesday</option>
@@ -271,3 +298,193 @@
                     </select>
                 </div>
                 <button type="submit" class="btn-primary" style="width: 100%;">+ Add Booklet to Schedule</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h2>
+                📅 Current Week Schedule 
+                <button id="finishWeekBtn" class="btn-archive">Save Week & Start New Week ➔</button>
+            </h2>
+            <div class="schedule-grid" id="scheduleGrid"></div>
+        </div>
+
+        <div class="card">
+            <h2>📚 Active Booklets Library</h2>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Booklet #</th>
+                            <th>Pages</th>
+                            <th>Time</th>
+                            <th>Day</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="masterTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🏆 Past Completed Weeks History</h2>
+            <div id="historyContainer"></div>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+            
+            let papers = [];
+            let history = [];
+
+            try {
+                papers = JSON.parse(localStorage.getItem('kumonActivePapers')) || [];
+                history = JSON.parse(localStorage.getItem('kumonHistory')) || [];
+            } catch (e) {
+                papers = [];
+                history = [];
+            }
+
+            const paperForm = document.getElementById('paperForm');
+            const scheduleGrid = document.getElementById('scheduleGrid');
+            const masterTableBody = document.getElementById('masterTableBody');
+            const historyContainer = document.getElementById('historyContainer');
+            const finishWeekBtn = document.getElementById('finishWeekBtn');
+
+            function saveData() {
+                localStorage.setItem('kumonActivePapers', JSON.stringify(papers));
+                localStorage.setItem('kumonHistory', JSON.stringify(history));
+                renderUI();
+            }
+
+            paperForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const newPaper = {
+                    id: Date.now(),
+                    bookletNo: document.getElementById('bookletNo').value.trim(),
+                    pages: parseInt(document.getElementById('pageCount').value) || 0,
+                    time: parseInt(document.getElementById('timeTaken').value) || 0,
+                    day: document.getElementById('assignedDay').value,
+                    completed: false
+                };
+
+                papers.push(newPaper);
+                saveData();
+                paperForm.reset();
+            });
+
+            window.toggleComplete = function(id) {
+                papers = papers.map(function(paper) {
+                    if (paper.id === id) {
+                        return Object.assign({}, paper, { completed: !paper.completed });
+                    }
+                    return paper;
+                });
+                saveData();
+            };
+
+            window.deletePaper = function(id) {
+                papers = papers.filter(function(paper) { return paper.id !== id; });
+                saveData();
+            };
+
+            finishWeekBtn.addEventListener('click', function() {
+                if (papers.length === 0) {
+                    alert("You don't have any booklets in the current schedule to save!");
+                    return;
+                }
+
+                if (confirm("Are you sure you want to save this week to History and start a new week?")) {
+                    var totalPages = papers.reduce(function(sum, p) { return sum + (p.completed ? p.pages : 0); }, 0);
+                    var totalTime = papers.reduce(function(sum, p) { return sum + (p.completed ? p.time : 0); }, 0);
+
+                    var weekRecord = {
+                        date: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
+                        totalBooklets: papers.length,
+                        completedBooklets: papers.filter(function(p) { return p.completed; }).length,
+                        totalPagesCompleted: totalPages,
+                        totalTimeSpent: totalTime
+                    };
+
+                    history.unshift(weekRecord);
+                    papers = [];
+                    saveData();
+                }
+            });
+
+            function renderUI() {
+                scheduleGrid.innerHTML = '';
+                daysOfWeek.forEach(function(day) {
+                    var dayBox = document.createElement('div');
+                    dayBox.className = 'day-box';
+                    
+                    var dayHTML = '<div class="day-title">' + day + '</div>';
+                    var dayPapers = papers.filter(function(p) { return p.day === day; });
+
+                    if (dayPapers.length === 0) {
+                        dayHTML += '<div style="color: var(--text-muted); font-size: 0.85rem;">No booklets set</div>';
+                    } else {
+                        dayPapers.forEach(function(p) {
+                            dayHTML += 
+                                '<div class="paper-item ' + (p.completed ? 'done' : '') + '">' +
+                                    '<div>' +
+                                        '<strong style="color: var(--kumon-dark-blue);">' + p.bookletNo + '</strong><br>' +
+                                        '<small style="color: var(--text-muted);">' + p.pages + ' pgs | ' + p.time + ' mins</small>' +
+                                    '</div>' +
+                                    '<input type="checkbox" class="checkbox-btn" ' + (p.completed ? 'checked' : '') + ' onclick="toggleComplete(' + p.id + ')">' +
+                                '</div>';
+                        });
+                    }
+
+                    dayBox.innerHTML = dayHTML;
+                    scheduleGrid.appendChild(dayBox);
+                });
+
+                masterTableBody.innerHTML = '';
+                if (papers.length === 0) {
+                    masterTableBody.innerHTML = '<tr><td colspan="6" style="text-align:center; color: var(--text-muted);">No active booklets for this week. Add some above!</td></tr>';
+                } else {
+                    papers.forEach(function(p) {
+                        var row = document.createElement('tr');
+                        row.innerHTML = 
+                            '<td><strong style="color: var(--kumon-dark-blue);">' + p.bookletNo + '</strong></td>' +
+                            '<td>' + p.pages + '</td>' +
+                            '<td>' + p.time + ' mins</td>' +
+                            '<td>' + p.day + '</td>' +
+                            '<td style="color: ' + (p.completed ? 'var(--success)' : 'var(--text-muted)') + '">' + (p.completed ? 'Completed' : 'Pending') + '</td>' +
+                            '<td><button class="delete-btn" onclick="deletePaper(' + p.id + ')">✕</button></td>';
+                        masterTableBody.appendChild(row);
+                    });
+                }
+
+                historyContainer.innerHTML = '';
+                if (history.length === 0) {
+                    historyContainer.innerHTML = '<p style="color: var(--text-muted); font-size: 0.9rem;">No completed weeks archived yet.</p>';
+                } else {
+                    history.forEach(function(week) {
+                        var div = document.createElement('div');
+                        div.className = 'history-item';
+                        div.innerHTML = 
+                            '<div style="display: flex; justify-content: space-between; align-items: center;">' +
+                                '<strong style="color: var(--kumon-dark-blue);">Week of ' + week.date + '</strong>' +
+                                '<span style="color: var(--success); font-weight: bold;">' + week.completedBooklets + ' / ' + week.totalBooklets + ' Booklets Done</span>' +
+                            '</div>' +
+                            '<div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">' +
+                                '📄 ' + week.totalPagesCompleted + ' Total Pages | ⏱️ ' + week.totalTimeSpent + ' Mins Spent' +
+                            '</div>';
+                        historyContainer.appendChild(div);
+                    });
+                }
+            }
+
+            renderUI();
+        });
+    </script>
+</body>
+</html>
