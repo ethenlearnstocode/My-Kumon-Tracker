@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kumon Student Progress Tracker</title>
+    <style>
+        :root {
+            --kumon-blue: #00a0e9;
+            --kumon-dark: #0077b6;
+            --bg: #eef7fc;
+            --card: #ffffff;
+            --border: #cbd5e1;
+            --text: #1e293b;
+            --success: #10b981;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+        body { background: var(--bg); color: var(--text); padding: 20px; display: flex; justify-content: center; }
+        .container { width: 100%; max-width: 900px; display: flex; flex-direction: column; gap: 20px; }
+        header { text-align: center; background: var(--card); padding: 20px; border-radius: 12px; border: 2px solid var(--kumon-blue); }
+        h1 { color: var(--kumon-blue); }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+        h2 { color: var(--kumon-dark); margin-bottom: 12px; font-size: 1.1rem; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 12px; }
+        .field { display: flex; flex-direction: column; gap: 4px; }
+        label { font-size: 0.8rem; font-weight: bold; color: var(--kumon-dark); }
+        input, select, button { padding: 8px; border-radius: 6px; border: 1px solid var(--border); }
+        button.btn-main { background: var(--kumon-blue); color: white; font-weight: bold; cursor: pointer; border: none; padding: 10px; }
+        .grid-days { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+        .day-box { background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 10px; }
+        .day-title { font-weight: bold; color: var(--kumon-blue); border-bottom: 2px solid var(--kumon-blue); margin-bottom: 8px; }
+        .item { background: white; border: 1px solid var(--border); padding: 8px; border-radius: 6px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
+        .item.done { background: #f0fdf4; border-color: var(--success); }
+        .sync-bar { display: flex; gap: 8px; margin-bottom: 10px; }
+        .btn-sync { background: #334155; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>kumon</h1>
+            <p style="color: #64748b;">Weekly Progress Tracker</p>
+        </header>
+
+        <div class="card">
+            <h2>Add Booklet</h2>
+            <div class="sync-bar">
+                <button type="button" class="btn-sync" onclick="exportData()">📥 Export File</button>
+                <button type="button" class="btn-sync" onclick="document.getElementById('fileInput').click()">📤 Import File</button>
+                <input type="file" id="fileInput" style="display:none" onchange="importData(event)" accept=".json">
+                <button type="button" class="btn-sync" style="background:#ef4444;" onclick="resetAll()">⚠️ Reset Saved Data</button>
+            </div>
+            
+            <form id="bookletForm">
+                <div class="form-grid">
+                    <div class="field"><label>Booklet #</label><input type="text" id="bNo" required placeholder="3A 11"></div>
+                    <div class="field"><label>Total Pages</label><input type="number" id="bPages" required min="1" value="10"></div>
+                    <div class="field"><label>Target Mins</label><input type="number" id="bTarget" required min="1" value="15"></div>
+                    <div class="field"><label>Actual Mins</label><input type="number" id="bActual" required min="1" value="15"></div>
+                    <div class="field"><label>Corrections</label><input type="number" id="bCorr" min="0" value="0"></div>
+                    <div class="field">
+                        <label>Day</label>
+                        <select id="bDay">
+                            <option>Monday</option><option>Tuesday</option><option>Wednesday</option>
+                            <option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn-main" style="width:100%">+ Add to Weekly Plan</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h2>📅 Daily Schedule</h2>
+            <div class="grid-days" id="scheduleView"></div>
+        </div>
+    </div>
+
+    <script>
+        // Error protection screen wrapper
+        window.onerror = function(msg, url, line) {
+            document.body.innerHTML = "<div style='padding:30px;color:red;font-family:sans-serif;'><h2>Code Error Caught!</h2><p>" + msg + " (Line " + line + ")</p><button onclick='resetAll()'>Click Here to Clear Saved Storage</button></div>";
+            return true;
+        };
+
+        var days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+        var items = [];
+
+        function loadStorage() {
+            try {
+                var raw = localStorage.getItem('kumon_data_v2');
+                items = raw ? JSON.parse(raw) : [];
+            } catch(e) {
+                items = [];
+            }
+        }
+
+        function saveStorage() {
+            localStorage.setItem('kumon_data_v2', JSON.stringify(items));
+            render();
+        }
+
+        document.getElementById('bookletForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            items.push({
+                id: Date.now(),
+                no: document.getElementById('bNo').value,
+                pages: document.getElementById('bPages').value,
+                target: document.getElementById('bTarget').value,
+                actual: document.getElementById('bActual').value,
+                corr: document.getElementById('bCorr').value,
+                day: document.getElementById('bDay').value,
+                done: false
+            });
+            saveStorage();
+            this.reset();
+            document.getElementById('bCorr').value = '0';
+        });
+
+        function toggle(id) {
+            for(var i=0; i<items.length; i++) {
+                if(items[i].id === id) items[i].done = !items[i].done;
+            }
+            saveStorage();
+        }
+
+        function render() {
+            var grid = document.getElementById('scheduleView');
+            grid.innerHTML = '';
+
+            days.forEach(function(d) {
+                var box = document.createElement('div');
+                box.className = 'day-box';
+                var html = '<div class="day-title">' + d + '</div>';
+                
+                var dayItems = items.filter(function(x) { return x.day === d; });
+                if(dayItems.length === 0) {
+                    html += '<div style="font-size:0.8rem;color:#94a3b8;">No booklets</div>';
+                } else {
+                    dayItems.forEach(function(x) {
+                        html += '<div class="item ' + (x.done ? 'done' : '') + '">' +
+                            '<div><strong>' + x.no + '</strong><br><small>' + x.pages + 'pgs | T:' + x.target + 'm / A:' + x.actual + 'm | ✏️ ' + x.corr + '</small></div>' +
+                            '<input type="checkbox" ' + (x.done ? 'checked' : '') + ' onclick="toggle(' + x.id + ')">' +
+                        '</div>';
+                    });
+                }
+                box.innerHTML = html;
+                grid.appendChild(box);
+            });
+        }
+
+        function exportData() {
+            var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(items));
+            var a = document.createElement('a');
+            a.href = dataStr;
+            a.download = "kumon_backup.json";
+            a.click();
+        }
+
+        function importData(e) {
+            var reader = new FileReader();
+            reader.onload = function(evt) {
+                try {
+                    items = JSON.parse(evt.target.result);
+                    saveStorage();
+                    alert("Imported successfully!");
+                } catch(err) {
+                    alert("Invalid File!");
+                }
+            };
+            if(e.target.files[0]) reader.readAsText(e.target.files[0]);
+        }
+
+        function resetAll() {
+            localStorage.clear();
+            items = [];
+            saveStorage();
+            location.reload();
+        }
+
+        loadStorage();
+        render();
+    </script>
+</body>
+</html>
