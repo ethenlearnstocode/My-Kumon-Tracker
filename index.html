@@ -12,28 +12,46 @@
             --card: #ffffff;
             --border: #cbd5e1;
             --text: #1e293b;
+            --muted: #64748b;
             --success: #10b981;
+            --danger: #ef4444;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
-        body { background: var(--bg); color: var(--text); padding: 20px; display: flex; justify-content: center; }
-        .container { width: 100%; max-width: 900px; display: flex; flex-direction: column; gap: 20px; }
-        header { text-align: center; background: var(--card); padding: 20px; border-radius: 12px; border: 2px solid var(--kumon-blue); }
-        h1 { color: var(--kumon-blue); }
-        .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
-        h2 { color: var(--kumon-dark); margin-bottom: 12px; font-size: 1.1rem; }
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 12px; }
-        .field { display: flex; flex-direction: column; gap: 4px; }
-        label { font-size: 0.8rem; font-weight: bold; color: var(--kumon-dark); }
-        input, select, button { padding: 8px; border-radius: 6px; border: 1px solid var(--border); }
-        button.btn-main { background: var(--kumon-blue); color: white; font-weight: bold; cursor: pointer; border: none; padding: 10px; }
-        .grid-days { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
-        .day-box { background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 10px; }
-        .day-title { font-weight: bold; color: var(--kumon-blue); border-bottom: 2px solid var(--kumon-blue); margin-bottom: 8px; }
-        .item { background: white; border: 1px solid var(--border); padding: 8px; border-radius: 6px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
-        .item.done { background: #f0fdf4; border-color: var(--success); }
-        .sync-bar { display: flex; gap: 8px; margin-bottom: 10px; }
-        .btn-sync { background: #334155; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; }
+        body { background: var(--bg); color: var(--text); padding: 20px; display: flex; justify-content: center; min-height: 100vh; }
+        .container { width: 100%; max-width: 980px; display: flex; flex-direction: column; gap: 20px; }
+        header { text-align: center; background: var(--card); padding: 20px; border-radius: 14px; border: 2px solid var(--kumon-blue); }
+        h1 { color: var(--kumon-blue); font-size: 2.5rem; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
+        
+        h2 { color: var(--kumon-dark); font-size: 1.2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; }
+        .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
+        
+        .btn { padding: 8px 14px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; font-size: 0.85rem; color: white; }
+        .btn-blue { background: var(--kumon-blue); }
+        .btn-dark { background: var(--kumon-dark); }
+        .btn-green { background: var(--success); }
+        .btn-red { background: var(--danger); }
+        .btn:hover { opacity: 0.9; }
+
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-bottom: 15px; }
+        .form-group { display: flex; flex-direction: column; gap: 5px; }
+        .form-group label { font-size: 0.85rem; font-weight: bold; color: var(--kumon-dark); }
+        input, select { padding: 9px; border-radius: 8px; border: 1px solid var(--border); background: #f8fafc; font-size: 0.95rem; }
+
+        .schedule-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+        .day-box { background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 12px; }
+        .day-title { font-weight: bold; color: var(--kumon-blue); border-bottom: 2px solid var(--kumon-blue); padding-bottom: 4px; margin-bottom: 10px; }
+        
+        .paper-item { background: white; border: 1px solid var(--border); padding: 10px; border-radius: 6px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .paper-item.done { background: #f0fdf4; border-color: var(--success); }
+        .checkbox-btn { width: 20px; height: 20px; accent-color: var(--kumon-blue); cursor: pointer; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 5px; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; }
+        th { color: var(--muted); text-transform: uppercase; font-size: 0.8rem; }
+
+        .history-item { background: #f8fafc; border-left: 4px solid var(--kumon-blue); border-radius: 6px; padding: 12px; margin-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -41,147 +59,49 @@
     <div class="container">
         <header>
             <h1>kumon</h1>
-            <p style="color: #64748b;">Weekly Progress Tracker</p>
+            <p style="color: var(--muted);">Weekly Study Plan & Progress Tracker</p>
         </header>
 
         <div class="card">
-            <h2>Add Booklet</h2>
-            <div class="sync-bar">
-                <button type="button" class="btn-sync" onclick="exportData()">📥 Export File</button>
-                <button type="button" class="btn-sync" onclick="document.getElementById('fileInput').click()">📤 Import File</button>
-                <input type="file" id="fileInput" style="display:none" onchange="importData(event)" accept=".json">
-                <button type="button" class="btn-sync" style="background:#ef4444;" onclick="resetAll()">⚠️ Reset Saved Data</button>
-            </div>
-            
-            <form id="bookletForm">
+            <h2>
+                <span>Add Booklet for This Week</span>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-dark" onclick="exportData()">📥 Export Data</button>
+                    <button type="button" class="btn btn-dark" onclick="document.getElementById('fileInput').click()">📤 Import Data</button>
+                    <input type="file" id="fileInput" style="display:none" onchange="importData(event)" accept=".json">
+                    <button type="button" class="btn btn-red" onclick="resetAll()">⚠️ Reset All Data</button>
+                </div>
+            </h2>
+            <form id="paperForm">
                 <div class="form-grid">
-                    <div class="field"><label>Booklet #</label><input type="text" id="bNo" required placeholder="3A 11"></div>
-                    <div class="field"><label>Total Pages</label><input type="number" id="bPages" required min="1" value="10"></div>
-                    <div class="field"><label>Target Mins</label><input type="number" id="bTarget" required min="1" value="15"></div>
-                    <div class="field"><label>Actual Mins</label><input type="number" id="bActual" required min="1" value="15"></div>
-                    <div class="field"><label>Corrections</label><input type="number" id="bCorr" min="0" value="0"></div>
-                    <div class="field">
-                        <label>Day</label>
+                    <div class="form-group">
+                        <label>Booklet #</label>
+                        <input type="text" id="bNo" placeholder="e.g. 3A 11" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Total Pages</label>
+                        <input type="number" id="bPages" placeholder="10" required min="1" value="10">
+                    </div>
+                    <div class="form-group">
+                        <label>Target Mins</label>
+                        <input type="number" id="bTarget" placeholder="15" required min="1" value="15">
+                    </div>
+                    <div class="form-group">
+                        <label>Actual Mins</label>
+                        <input type="number" id="bActual" placeholder="15" required min="1" value="15">
+                    </div>
+                    <div class="form-group">
+                        <label>Corrections</label>
+                        <input type="number" id="bCorr" placeholder="0" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Assigned Day</label>
                         <select id="bDay">
                             <option>Monday</option><option>Tuesday</option><option>Wednesday</option>
                             <option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option>
                         </select>
                     </div>
                 </div>
-                <button type="submit" class="btn-main" style="width:100%">+ Add to Weekly Plan</button>
+                <button type="submit" class="btn btn-blue" style="width: 100%; padding: 12px;">+ Add Booklet to Schedule</button>
             </form>
         </div>
-
-        <div class="card">
-            <h2>📅 Daily Schedule</h2>
-            <div class="grid-days" id="scheduleView"></div>
-        </div>
-    </div>
-
-    <script>
-        // Error protection screen wrapper
-        window.onerror = function(msg, url, line) {
-            document.body.innerHTML = "<div style='padding:30px;color:red;font-family:sans-serif;'><h2>Code Error Caught!</h2><p>" + msg + " (Line " + line + ")</p><button onclick='resetAll()'>Click Here to Clear Saved Storage</button></div>";
-            return true;
-        };
-
-        var days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-        var items = [];
-
-        function loadStorage() {
-            try {
-                var raw = localStorage.getItem('kumon_data_v2');
-                items = raw ? JSON.parse(raw) : [];
-            } catch(e) {
-                items = [];
-            }
-        }
-
-        function saveStorage() {
-            localStorage.setItem('kumon_data_v2', JSON.stringify(items));
-            render();
-        }
-
-        document.getElementById('bookletForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            items.push({
-                id: Date.now(),
-                no: document.getElementById('bNo').value,
-                pages: document.getElementById('bPages').value,
-                target: document.getElementById('bTarget').value,
-                actual: document.getElementById('bActual').value,
-                corr: document.getElementById('bCorr').value,
-                day: document.getElementById('bDay').value,
-                done: false
-            });
-            saveStorage();
-            this.reset();
-            document.getElementById('bCorr').value = '0';
-        });
-
-        function toggle(id) {
-            for(var i=0; i<items.length; i++) {
-                if(items[i].id === id) items[i].done = !items[i].done;
-            }
-            saveStorage();
-        }
-
-        function render() {
-            var grid = document.getElementById('scheduleView');
-            grid.innerHTML = '';
-
-            days.forEach(function(d) {
-                var box = document.createElement('div');
-                box.className = 'day-box';
-                var html = '<div class="day-title">' + d + '</div>';
-                
-                var dayItems = items.filter(function(x) { return x.day === d; });
-                if(dayItems.length === 0) {
-                    html += '<div style="font-size:0.8rem;color:#94a3b8;">No booklets</div>';
-                } else {
-                    dayItems.forEach(function(x) {
-                        html += '<div class="item ' + (x.done ? 'done' : '') + '">' +
-                            '<div><strong>' + x.no + '</strong><br><small>' + x.pages + 'pgs | T:' + x.target + 'm / A:' + x.actual + 'm | ✏️ ' + x.corr + '</small></div>' +
-                            '<input type="checkbox" ' + (x.done ? 'checked' : '') + ' onclick="toggle(' + x.id + ')">' +
-                        '</div>';
-                    });
-                }
-                box.innerHTML = html;
-                grid.appendChild(box);
-            });
-        }
-
-        function exportData() {
-            var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(items));
-            var a = document.createElement('a');
-            a.href = dataStr;
-            a.download = "kumon_backup.json";
-            a.click();
-        }
-
-        function importData(e) {
-            var reader = new FileReader();
-            reader.onload = function(evt) {
-                try {
-                    items = JSON.parse(evt.target.result);
-                    saveStorage();
-                    alert("Imported successfully!");
-                } catch(err) {
-                    alert("Invalid File!");
-                }
-            };
-            if(e.target.files[0]) reader.readAsText(e.target.files[0]);
-        }
-
-        function resetAll() {
-            localStorage.clear();
-            items = [];
-            saveStorage();
-            location.reload();
-        }
-
-        loadStorage();
-        render();
-    </script>
-</body>
-</html>
